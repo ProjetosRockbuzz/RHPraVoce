@@ -1,0 +1,174 @@
+<?php get_header(); ?>
+
+<?php get_template_part( 'template-parts/content', 'carousel_logos' ); ?>
+
+<?php
+	$obj = get_queried_object();
+	$made_possible = get_field('made_possible_by', 'tags_posts_' . $obj->term_id);
+
+	if($made_possible):
+		$made_url = get_field('logo_empresa', 'empresas_' . $made_possible->term_id);
+		$made_logo = '<img width="230px" src="'.$made_url['sizes']['medium'].'">';
+	else:
+		$made_logo = '';
+	endif;
+?>
+<?php
+$terms = get_terms( array(
+    'taxonomy' => 'tags_posts',
+    'hide_empty' => false,
+) );
+?>
+
+<style>
+    .title-temas {
+    background-color: #f1f1f1;
+    padding: 10px 0;
+    text-transform: uppercase;
+    }
+    .destaque-logo {
+        position: relative;
+        padding: 0 17px;
+        box-shadow: 0px 0px 14px rgb(0 0 0 / 16%);
+        background-color: #fff;
+    }
+    @media (min-width: 992px){
+        .title-temas {
+            margin-top: 4rem;
+        }
+    }
+    @media (min-width: 768px){
+        .title-temas {
+            margin-bottom: 68px;
+            margin-top: 35px;
+        }
+
+        .destaque-logo {
+            top: -30px;
+            right: 0;
+            margin: 0;
+            position: absolute;
+            padding: 25px 15px !important;
+            box-shadow: 0px 0px 14px rgb(0 0 0 / 16%);
+            background-color: #fff;
+            display: block;
+        }
+    }
+
+</style>
+<div class="main-temas pt-0 pb-5">
+	<div class="container">
+		<div class="row mb-4 pb-1">
+            <div class="col-lg-3">
+                <h2><strong>TEMAS</strong></h2>
+                <div class="row-temas pt-4 d-none d-lg-block">
+                    <?php
+                        $tags_list = get_tags(array(
+                        'taxonomy' => 'tags_posts',
+                        'orderby' => 'name',
+                        'hide_empty' => false
+                        ));
+
+                        $chunk = array_chunk( $tags_list, 16, true);
+
+                        foreach ($chunk as $key => $tags):
+                            echo '<ul class="p-0 m-0" style="list-style:none; font-weight:500;">';
+                            foreach ($tags as $tag):
+                                echo '<li class="mb-2"><a class="temas-link" href="'.get_term_link($tag->term_id).'">'.$tag->name.'</a></li>';
+                            endforeach;
+                            echo '</ul>';
+                        endforeach;
+                    ?>
+			    </div>
+            </div>
+            <div class="col-lg-9">
+                <div class="text-center text-lg-start title-temas d-md-flex align-items-center position-relative">
+                    <div class="ps-3">
+                        <h2><strong>#<?php single_term_title( '', true );?></strong>
+                            <p class="m-0 made-possible">APRESENTADO POR </p> 
+                        </h2>
+                    </div>
+                    <div class="destaque-logo shadow">
+                        <?=$made_logo?>
+                    </div>
+                </div>
+                <!-- Loop Posts -->
+                <?php
+                    if(have_posts()):
+                    while(have_posts()):the_post();?>
+                    <div class="article-tema pt-4 row">
+
+
+                        <div class="col-12 col-lg-6">
+                            <div class="thumbnail-post">
+                                <?php if(has_post_thumbnail()): ?>
+                                    <figure>
+                                        <a href="<?php the_permalink(); ?>"><img width="100%" class="img-fluid" src="<?= get_field('capa_maior', get_the_ID())['url']; ?>"></a>
+                                    </figure>
+                                <?php else: ?>
+                                    <figure>
+                                        <a href="<?php the_permalink(); ?>"><img width="100%" class="img-fluid" src="<?=NOT_THUMB?>"></a>
+                                    </figure>
+                                <?php endif; ?>	
+                            </div>
+                        </div>
+
+
+                        <div class="col-12 col-lg-6 text-center text-md-start">
+                            <div class="pt-3 pb-2">
+                                <?php $cat_attr = wp_get_object_terms($post->ID, 'tags_posts')[0]; ?>
+                                <ul class="menu legend simple">
+                                    <li class="<?= get_post_type(get_the_ID()); ?>"><span><a href=""><?=$cat_attr->name?></a></span></li>
+                                    <li class="item"><i class="text icon-calendar"></i> <?=get_the_date();?></li>
+                                </ul>
+                                <h2 class="title">
+                                    <a href="<?php the_permalink();?>"> <?= get_the_title()?> </a>
+                                </h2>
+                            </div>
+                            <div class="excerpt-post">
+                                <?= excerpt(get_the_excerpt(), 50); ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php
+                    endwhile;
+                    echo '<div class="mt-2 pt-5 pb-1">';
+                    the_posts_pagination();
+                    echo '</div>';
+                    endif;
+                ?>
+                <!-- End Loop Posts -->
+            </div>
+		</div>
+
+
+		<hr class="mt-5 d-lg-none">
+
+		<!-- Temas -->
+		<div class="temas pt-3 d-lg-none">
+			<h2><strong>TEMAS</strong></h2>
+			<div class="row-temas pt-4">
+				<?php
+					$tags_list = get_tags(array(
+					  'taxonomy' => 'tags_posts',
+					  'orderby' => 'name',
+					  'hide_empty' => false
+					));
+
+					$chunk = array_chunk( $tags_list, 16, true);
+
+					foreach ($chunk as $key => $tags):
+						echo '<div class="col-tags-list">';
+						foreach ($tags as $tag):
+							echo '<a href="'.get_term_link($tag->term_id).'">'.$tag->name.'</a>';
+						endforeach;
+						echo '</div>';
+					endforeach;
+				?>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<?php get_footer(); ?>
